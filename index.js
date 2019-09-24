@@ -37,6 +37,9 @@ class ConcatPlugin {
         this.startTime = Date.now();
         this.prevTimestamps = {};
         this.needCreateNewFile = true;
+
+        // used to make sure the plugin only runs once when the option is specified
+        this.isFirstRun = true;
     }
 
     ensureTrailingSlash(string) {
@@ -258,6 +261,7 @@ class ConcatPlugin {
     }
 
     apply(compiler) {
+        if(this.settings.runOnce && !this.isFirstRun) return;
         // ensure only compile one time per emit
         let compileLoopStarted = false;
 
@@ -368,6 +372,8 @@ class ConcatPlugin {
         compiler.hooks.afterEmit.tap('webpackConcatPlugin', compilation => {
             compileLoopStarted = false;
         });
+
+        this.isFirstRun = false;
     }
 }
 
